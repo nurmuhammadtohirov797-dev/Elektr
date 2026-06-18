@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Elektrotexnika">
+<title>Nazariy Elektrotexnika Testi (Bo‘limli & Aralash)</title>
+<style>
+:root {
+  --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a;
+  --border: #2e3350; --accent: #4f6ef7; --accent2: #6c8afb;
+  --green: #22c55e; --red: #ef4444; --yellow: #facc15;
+  --text: #e8eaf6; --muted: #7b83ab; --radius: 12px;
+  --gold: #facc15;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh; -webkit-text-size-adjust: 100%;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.screen { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+.screen.active { display: flex; }
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 440px;
+  box-shadow: 0 20px 60px rgba(79,110,247,0.1);
+}
+.logo { font-size: 44px; text-align: center; margin-bottom: 14px; }
+h1 { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 6px; }
+h2 { font-size: 16px; font-weight: 700; text-align: center; margin-bottom: 20px; color: var(--muted); }
+.p-text { font-size: 14px; color: var(--muted); line-height: 1.6; text-align: center; margin-bottom: 20px; }
+
+/* Bo'limlar tugmalari */
+.sections-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+.section-btn {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  padding: 14px; border-radius: var(--radius); font-size: 15px; font-weight: 600;
+  cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center;
+  transition: all 0.2s;
+}
+.section-btn:active { transform: scale(0.99); background: var(--border); }
+.section-btn .arrow { color: var(--accent); font-weight: bold; }
+
+/* Oltin rangli maxsus aralash blok */
+.section-btn.mix-block {
+  border: 1px solid rgba(250, 204, 21, 0.4);
+  background: linear-gradient(135deg, #1e2021, #2b2613);
+}
+.section-btn.mix-block .arrow { color: var(--gold); }
+.section-btn.mix-block span { color: #ffe680; }
+
+.nav-header {
+  width: 100%; max-width: 440px; display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 16px; padding: 0 4px;
+}
+.back-btn {
+  background: none; border: none; color: var(--muted); font-size: 14px; cursor: pointer; font-weight: 600;
+}
+.progress-container { flex: 1; margin: 0 16px; position: relative; }
+.progress-bg { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0%; transition: width 0.3s; }
+.counter { font-size: 14px; font-weight: 700; color: var(--muted); min-width: 50px; text-align: right; }
+
+.q-card { padding: 24px; min-height: 380px; display: flex; flex-direction: column; }
+.q-text { font-size: 17px; font-weight: 600; line-height: 1.5; margin-bottom: 24px; color: #fff; flex: 1; }
+.options { display: flex; flex-direction: column; gap: 12px; }
+.opt-btn {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  padding: 14px 16px; border-radius: var(--radius); font-size: 15px; text-align: left;
+  cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center;
+}
+.opt-btn:disabled { cursor: default; }
+.opt-btn.correct { background: rgba(34,197,94,0.15); border-color: var(--green); color: var(--green); font-weight: 700; }
+.opt-btn.wrong { background: rgba(239,68,68,0.15); border-color: var(--red); color: var(--red); }
+
+.score-box {
+  width: 120px; height: 120px; border-radius: 50%; background: var(--surface2);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  margin: 0 auto 20px; border: 3px solid var(--accent);
+}
+.score-val { font-size: 36px; font-weight: 800; color: #fff; line-height: 1; }
+.score-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; margin-top: 4px; letter-spacing: 1px; }
+.res-card h3 { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 8px; }
+.res-detail { font-size: 14px; color: var(--muted); text-align: center; margin-bottom: 24px; }
+.restart-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white; border: none; padding: 16px; border-radius: var(--radius);
+  font-size: 16px; font-weight: 700; width: 100%; cursor: pointer;
+  box-shadow: 0 8px 20px rgba(79,110,247,0.3); transition: all 0.2s;
+}
+</style>
+</head>
+<body>
+
+<div class="screen active" id="start-screen">
+  <div class="card">
+    <div class="logo">⚡</div>
+    <h1>Elektrotexnika</h1>
+    <h2>Yakuniy Nazorat Testlari</h2>
+    <p class="p-text">Kerakli bo‘limni tanlang. 8-blokda barcha 197 ta test ichidan aralashib tushadi:</p>
+    
+    <div class="sections-grid">
+      <button class="section-btn" onclick="startSection(1)"><span>1-bo‘lim (1 - 30 testlar)</span> <span class="arrow">&rarr;</span></button>
+      <button class="section-btn" onclick="startSection(2)"><span>2-bo‘lim (31 - 60 testlar)</span> <span class="arrow">&rarr;</span></button>
+      <button class="section-btn" onclick="startSection(3)"><span>3-bo‘lim (61 - 90 testlar)</span> <span class="arrow">&rarr;</span></button>
+      <button class="section-btn" onclick="startSection(4)"><span>4-bo‘lim (91 - 120 testlar)</span> <span class="arrow">&rarr;</span></button>
+      <button class="section-btn" onclick="startSection(5)"><span>5-bo‘lim (121 - 150 testlar)</span> <span class="arrow">&rarr;</span></button>
+      <button class="section-btn" onclick="startSection(6)"><span>6-bo‘lim (151 - 180 testlar)</span> <span class="arrow">&rarr;</span></button>
+      <button class="section-btn" onclick="startSection(7)"><span>7-bo‘lim (181 - 197 testlar)</span> <span class="arrow">&rarr;</span></button>
+      <button class="section-btn mix-block" onclick="startSection(8)"><span>🔥 8-bo‘lim (197 tadan ARALASH 30 ta)</span> <span class="arrow">&rarr;</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="quiz-screen">
+  <div class="nav-header">
+    <button class="back-btn" onclick="goHome()">&larr; Chiqish</button>
+    <div class="progress-container"><div class="progress-bg"><div class="progress-fill" id="progress"></div></div></div>
+    <div class="counter" id="counter">1/30</div>
+  </div>
+  <div class="card q-card" id="q-card">
+    </div>
+</div>
+
+<div class="screen" id="result-screen">
+  <div class="card res-card">
+    <div class="score-box">
+      <div class="score-val" id="res-score">0</div>
+      <div class="score-lbl">To‘g‘ri</div>
+    </div>
+    <h3 id="res-title">Yaxshi natija!</h3>
+    <div class="res-detail" id="res-detail">Siz 30 tadan 0 ta savolga javob berdingiz (0%)</div>
+    <button class="restart-btn" onclick="goHome()">Bosh sahifaga qaytish</button>
+  </div>
+</div>
+
+<script>
+const rawQuestions = [
+  // 1-30
+  {"q": "Voltmetr  qarshilik uchlaridagi kuchlanishni to‘gri o‘lchashi uchun unga nisbatan qanday ulanadi?", "options": ["Пaralel", "Ketma-ket", "Paralel va ketma-ket", "Aralash"]},
+  {"q": "Zanjir uchlaridagi kuchlanishni 2 marta oshirganda ajralgan quvvat 4 marta oshdi. Zanjirdan o‘tayotgan tok kuchi o‘zgaradimi?", "options": ["2 marta  oshadi", "4 marta oshadi", "2 marta kamayadi", "4 marta kamayadi"]},
+  {"q": "Agar kuchaytirish koeffitsienti 500 ga, to‘rdagi kuchlanish o‘zgarishi 50 V ga teng bo‘lsa, anoddagi kuchlanish o‘zgarishini hisoblang.", "options": ["25000", "550", "200000", "5000"]},
+  {"q": "3500 o‘ramga ega bo‘lgan transformator ikkilamchi cho‘lјamining uchlaridagi kuchlanish 105 V bo‘lsa, 1000 o‘ramga ega bo‘lgan birinchi cho‘lјamning uchlaridagi kuchlanish nimaga teng?", "options": ["30", "105", "70", "60"]},
+  {"q": "Agar g’altakdagi tok kuchi 2 marta ortsa, uning magnit maydon energiyasi qanday o‘zgaradi?", "options": ["4 marta ortadi", "2 marta ortadi", "4 marta kamayami", "2 marta kamayadi"]},
+  {"q": "O‘zgaruvchan tok zanjirida reaktiv quvvat qaysi formula bilan aniqlanadi?", "options": ["Q=UI sinf", "P=UI cosf", "S=UI", "Q=UI"]},
+  {"q": "Tebranish konturidagi kondensator qoplamalaridagi maksimal zaryad 2 marta kamaytirilsa, konturning to‘liq elektromagnit energiyasi qanday o‘zgaradi?", "options": ["4 marta kamayadi", "2 marta kamayadi", "4 marta ortadi", "2 marta ortadi"]},
+  {"q": "Aktiv qarshilik R=4 Om va induktiv qarshilik XL=3 Om bo’lgan g‘altakning to’la qarshiligini aniqlang.", "options": ["5 Om", "7 Om", "1 Om", "12 Om"]},
+  {"q": "Kondensatorning sig’imi 4 marta orttirilganda, uning elektr maydon energiyasi qanday o‘zgaradi? (U=const)", "options": ["4 marta ortadi", "4 marta kamayadi", "2 marta ortadi", "2 marta kamayadi"]},
+  {"q": "Zanjir qismidagi o’tkazgichda tok kuchi 2 A ga teng. O’tkazgich qarshiligi 10 Om bo’lsa, 10 s ichida qancha issiqlik miqdori ajraladi?", "options": ["400 J", "200 J", "40 J", "20 J"]},
+  {"q": "O‘zgaruvchan tok zanjirida to‘la quvvat qaysi formula bilan aniqlanadi?", "options": ["S = UI", "P = UI cosf", "Q = UI sinf", "A = UIt"]},
+  {"q": "Radioaloqa uzatgichining antennasidagi kontur sig’imi 2.5 pF va induktivligi 10 mkH bo’lsa, u qanday to’lqin uzunligida ishlaydi?", "options": ["9.42 m", "3.14 m", "6.28 m", "12.56 m"]},
+  {"q": "Kondensator sig’imi 2 mkF, uning qoplamalaridagi kuchlanish 100 V bo’lsa, elektr maydon energiyasini aniqlang.", "options": ["0.01 J", "0.02 J", "0.1 J", "0.2 J"]},
+  {"q": "Transformatorning FIK (foydali ish koeffitsienti) qaysi formula bilan aniqlanadi?", "options": ["h = P2 / P1", "h = P1 / P2", "h = S2 / S1", "h = Q2 / Q1"]},
+  {"q": "Yassi kondensator plastinkalari orasidagi masofa 2 marta kamaytirilsa, uning sig‘imi qanday o‘zgaradi?", "options": ["2 marta ortadi", "2 marta kamayadi", "4 marta ortadi", "4 marta kamayadi"]},
+  {"q": "O’tkazgichning qarshiligi 5 Om bo’lb, undan 3 A tok o’tmoqda. 1 minutda ajralgan issiqlik miqdorini toping.", "options": ["2700 J", "45 J", "900 J", "15 J"]},
+  {"q": "Elektr zanjirida parallel ulangan ikkita R1=10 Om va R2=10 Om qarshiliklarning umumiy qarshiligi qancha bo’ladi?", "options": ["5 Om", "20 Om", "10 Om", "2.5 Om"]},
+  {"q": "Radiolakatorlari 9 x 10^4 m masofada bo’lganda, necha sekunddan keyin yuborilgan signal qaytib qabul etiladi? C = 3 x 10^8 m/s.", "options": ["0,0006", "0,0004", "0,0003", "0,0007"]},
+  {"q": "Quyidagi sxemada R1=50 Om va R2=40 Om bo’lgan o’tkazgichlarning umumiy qarshiligini hisoblang. Ampermetr ko’rsatishi 2 A ga teng.", "options": ["222,2", "223,3", "221,1", "224,4"]},
+  {"q": "Ketma-ket ulangan R1=200 Om va R2=2000 Om bo’lgan o’tkazgichlarning umumiy qarshiligini hisoblang.", "options": ["2200", "1800", "10", "400 000"]},
+  {"q": "Kuchaytirish koeffisienti 30 ga, ichki qarshiligi 30 Om ga teng bo’lgan triodning xarakteristika tikligini aniqlang.", "options": ["1", "0", "60", "900"]},
+  {"q": "Kuchaytirish koeffitsentlari mos ravishda 5, 70 va 10 ga teng bo’lgan uch kaskadli kuchaytirgichning umumiy kuchaytirish koeffitsientini aniqlang.", "options": ["3500", "50", "75", "85"]},
+  {"q": "Yorug‘lik energiyasini bevosita elektr energiyasiga aylantirib veradigan asbob qanday ataladi?", "options": ["Fotoelement", "Vakuumli diod", "Triod", "Tranzistor"]},
+  {"q": "Dvigatellarda qanday energiya qaysi energiyaga aylanadi?", "options": ["Elektr energiyasi mexanik energiyaga", "Mexanik energiya elektr energiyasiga", "Issiqlik energiyasi elektr energiyasiga", "Kimyoviy energiya elektr energiyasiga"]},
+  {"q": "Generatorlarda qanday energiya qaysi energiyaga aylanadi?", "options": ["Mexanik energiya elektr energiyasiga", "Elektr energiyasi mexanik energiyaga", "Issiqlik energiyasi elektr energiyasiga", "Kimyoviy energiya elektr energiyasiga"]},
+  {"q": "Ikkita qarshilik o’zaro parallel ulangan zanjirning umumiy qarshiligini hisoblash formulasini ko’rsating.", "options": ["R = R1 * R2 / (R1 + R2)", "R = R1 + R2", "R = (R1 + R2) / (R1 * R2)", "R = R1 * R2"]},
+  {"q": "Tok zichligining formulasi qaysi javobda to’g’ri ko’rsatilgan?", "options": ["J = I / S", "J = U / R", "J = P / U", "J = Q / t"]},
+  {"q": "Magnit oqimi qaysi birlikda o‘lchanadi?", "options": ["Veber", "Tesla", "Henri", "Farad"]},
+  {"q": "Magnit induksiyasi qaysi birlikda o‘lchanadi?", "options": ["Tesla", "Veber", "Henri", "Klond"]},
+  {"q": "Induktivlik qaysi birlikda o‘lchanadi?", "options": ["Henri", "Tesla", "Veber", "Farad"]},
+
+  // 31-60
+  {"q": "Elektr sig’imi qaysi birlikda o‘lchanadi?", "options": ["Farad", "Klond", "Henri", "Vatt"]},
+  {"q": "O‘zgaruvchan tok zanjirida reaktiv quvvat qaysi birlikda o‘lchanadi?", "options": ["VAr", "Vatt", "VA", "Joul"]},
+  {"q": "O‘zgaruvchan tok zanjirida aktiv quvvat qaysi birlikda o‘lchanadi?", "options": ["Vatt", "VAr", "VA", "Amper"]},
+  {"q": "O‘zgaruvchan tok zanjirida to‘la quvvat qaysi birlikda o‘lchanadi?", "options": ["VA", "Vatt", "VAr", "Volt"]},
+  {"q": "Ampermetr tokni to‘gri o‘lchashi uchun zanjirga qanday ulanadi?", "options": ["Ketma-ket", "Parallel", "Aralash", "Ulanmaydi"]},
+  {"q": "Elektr zanjiri elementlarining ketma-ket ulanishida qaysi kattalik o‘zgarmas qoladi?", "options": ["Tok kuchi", "Kuchlanish", "Qarshilik", "Quvvat"]},
+  {"q": "Elektr zanjiri elementlarining parallel ulanishida qaysi kattalik o‘zgarmas qoladi?", "options": ["Kuchlanish", "Tok kuchi", "Qarshilik", "Quvvat"]},
+  {"q": "Om qonuni formulasini ko’rsating.", "options": ["I = U / R", "I = Q / t", "R = P / I^2", "U = I * R"]},
+  {"q": "Joul-Lens qonuni formulasini ko’rsating.", "options": ["Q = I^2 * R * t", "Q = C * U^2 / 2", "W = L * I^2 / 2", "P = U * I"]},
+  {"q": "O‘tqazgich qarshiligining solishtirma qarshilikka va uzunlikka bog‘liqlik formulasi qaysi?", "options": ["R = p * l / S", "R = U / I", "R = S / (p * l)", "R = p * S / l"]},
+  {"q": "Transformatsiya koeffitsienti qaysi formula bilan aniqlanadi?", "options": ["K = U1 / U2", "K = U2 / U1", "K = I1 / I2", "K = P1 / P2"]},
+  {"q": "Kondensatorda to‘plangan elektr maydon energiyasi formulasi qaysi?", "options": ["W = C * U^2 / 2", "W = L * I^2 / 2", "W = q * U", "W = I^2 * R * t"]},
+  {"q": "G‘altakning magnit maydon energiyasi formulasi qaysi?", "options": ["W = L * I^2 / 2", "W = C * U^2 / 2", "W = U * I * t", "W = P * t"]},
+  {"q": "Sinf xonasida 4 ta 100 vattli lampochka 5 soat davomida yondi. Sarflangan elektr energiyasini toping.", "options": ["2 kVt*soat", "400 Vt", "500 Vt*soat", "1 kVt*soat"]},
+  {"q": "Zanjirdagi tok kuchi 5 A, kuchlanish 220 V bo’lsa, uning quvvatini aniqlang.", "options": ["1100 Vt", "44 Vt", "225 Vt", "0.02 Vt"]},
+  {"q": "C1=2 mkF va C2=3 mkF bo’lgan ikkita kondensator parallel ulansa, umumiy sig’im qancha bo’ladi?", "options": ["5 mkF", "1.2 mkF", "6 mkF", "1 mkF"]},
+  {"q": "C1=6 mkF va C2=3 mkF bo’lgan ikkita kondensator ketma-ket ulansa, umumiy sig’im qancha bo’ladi?", "options": ["2 mkF", "9 mkF", "18 mkF", "0.5 mkF"]},
+  {"q": "O‘tkazgichning ko‘ndalang kesim yuzasi 2 marta orttirilsa, uning qarshiligi qanday o‘zgaradi?", "options": ["2 marta kamayadi", "2 marta ortadi", "4 marta kamayadi", "o‘zgarmaydi"]},
+  {"q": "O‘tkazgichning uzunligi 3 marta orttirilsa, uning qarshiligi qanday o‘zgaradi?", "options": ["3 marta ortadi", "3 marta kamayadi", "9 marta ortadi", "o‘zgarmaydi"]},
+  {"q": "Zanjir qismidagi kuchlanish 12 V, qarshilik 4 Om bo’lsa, tok kuchini toping.", "options": ["3 A", "48 A", "0.33 A", "16 A"]},
+  {"q": "Kondensator plastinkalari orasiga dielektrik kiritilganda uning sig’imi qanday o‘zgaradi?", "options": ["Ortadi", "Kamayadi", "O‘zgarmaydi", "Nolgacha kamayadi"]},
+  {"q": "Kirxgofning birinchi qonuni nima haqida?", "options": ["Tugundagi toklarning algebraik yig‘indisi nolga teng", "Konturdagi EYuKlar yig‘indisi kuchlanishlar tushuviga teng", "Tok kuchining qarshilikka bog‘liqligi", "Zanjirdagi quvvatlar balansi"]},
+  {"q": "Kirxgofning ikkinchi qonuni nima haqida?", "options": ["Konturdagi EYuKlar yig‘indisi kuchlanishlar tushuviga teng", "Tugundagi toklarning algebraik yig‘indisi nolga teng", "Zanjir elementlarining parallel ulanishi", "Solishtirma o‘tkazuvchanlik"]},
+  {"q": "O‘zgaruvchan tokning davri T=0.02 s bo’lsa, uning chastotasi f qanchaga teng?", "options": ["50 Gts", "100 Gts", "60 Gts", "0.02 Gts"]},
+  {"q": "Chastotasi 400 Gts bo’lgan o‘zgaruvchan tokning davrini toping.", "options": ["0.0025 s", "400 s", "0.02 s", "0.25 s"]},
+  {"q": "Ideal tebranish konturida davrni aniqlash uchun qaysi formuladan foydalaniladi (Tomson formulasi)?", "options": ["T = 2 * pi * sqrt(L * C)", "T = 1 / f", "T = 2 * pi / omega", "T = L / R"]},
+  {"q": "Zanjirdagi aktiv qarshilik 6 Om, reaktiv qarshilik 8 Om bo’lsa, to‘la qarshilik Z ni toping.", "options": ["10 Om", "14 Om", "2 Om", "48 Om"]},
+  {"q": "Chastota oshishi bilan qaysi qarshilik turi kamayadi?", "options": ["Sig’im qarshiligi", "Induktiv qarshilik", "Aktiv qarshilik", "To‘la qarshilik"]},
+  {"q": "Chastota oshishi bilan qaysi qarshilik turi ortadi?", "options": ["Induktiv qarshilik", "Sig’im qarshiligi", "Aktiv qarshilik", "Hech qaysisi"]},
+  {"q": "Sig’im qarshiligini hisoblash formulasi qaysi?", "options": ["Xc = 1 / (omega * C)", "Xl = omega * L", "R = U / I", "Z = sqrt(R^2 + X^2)"]},
+
+  // 61-90
+  {"q": "Induktiv qarshilikni hisoblash formulasi qaysi?", "options": ["Xl = omega * L", "Xc = 1 / (omega * C)", "Z = R + X", "I = U / Xl"]},
+  {"q": "Elektr zanjirida rezonans hodisasi yuz berishi uchun qanday shart bajarilishi kerak?", "options": ["Xl = Xc", "R = 0", "Xl = 0", "Xc = 0"]},
+  {"q": "Elektr o‘tkazuvchanlik birligi nima?", "options": ["Simens", "Om", "Vatt", "Farad"]},
+  {"q": "Elektr zanjirida quvvatlar balansi tenglamasi qanday ifodalanadi?", "options": ["Manbalar quvvati = Iste'molchilar quvvati", "P = U * I", "S = P + Q", "h = P_foydali / P_to'liq"]},
+  {"q": "Yarimo‘tkazgichli diodning asosiy vazifasi nima?", "options": ["Tokni bir tomonga o‘tkazish (To‘g‘rilash)", "Kuchlanishni oshirish", "Tokni kuchaytirish", "Elektr energiyasini saqlash"]},
+  {"q": "Tranzistorning nechtaelektrodi bor?", "options": ["3 ta", "2 ta", "4 ta", "1 ta"]},
+  {"q": "Tranzistor elektrodlari nomlarini ko‘rsating.", "options": ["Emitter, Baza, Kollektor", "Anod, Katod, Setka", "Plyus, Minus, Yer", "Kondensator, Katod, Baza"]},
+  {"q": "Elektron lampalarda (triod) qaysi elektrod o‘tayotgan tokni boshqarish uchun xizmat qiladi?", "options": ["To‘r (Setka)", "Anod", "Katod", "Qizdirgich"]},
+  {"q": "Elektr tokining issiqlik ta'siriga asoslangan maishiy elektr asbobini ko‘rsating.", "options": ["Dazmol", "Ventilyator", "Magnitofon", "Kompyuter"]},
+  {"q": "Uch fazali zanjirda elementlar yulduz usulida ulanganda liniya va faza toklari orasidagi bog‘liqlik qanday bo‘ladi?", "options": ["Il = If", "Il = sqrt(3) * If", "Il = If / sqrt(3)", "Il = 3 * If"]},
+  {"q": "Uch fazali zanjirda elementlar uchburchak usulida ulanganda liniya va faza kuchlanishlari orasidagi bog‘liqlik qanday bo‘ladi?", "options": ["Ul = Uf", "Ul = sqrt(3) * Uf", "Ul = Uf / sqrt(3)", "Ul = 3 * Uf"]},
+  {"q": "Uch fazali zanjirda yulduz ulanishda liniya kuchlanishi faza kuchlanishidan necha marta katta?", "options": ["sqrt(3) marta", "3 marta", "2 marta", "teng bo'ladi"]},
+  {"q": "Uch fazali zanjirda uchburchak ulanishda liniya toki faza tokidan necha marta katta?", "options": ["sqrt(3) marta", "3 marta", "2 marta", "teng bo'ladi"]},
+  {"q": "Transformator nima uchun xizmat qiladi?", "options": ["O‘zgaruvchan tok kuchlanishini o‘zgartirish uchun", "O‘zgarmas tokni o‘zgaruvchan tokka aylantirish uchun", "Elektr energiyasini ishlab chiqarish uchun", "Tokni to‘g‘rilash uchun"]},
+  {"q": "O‘zgarmas tok zanjirida transformatordan foydalanish mumkinmi?", "options": ["Yo‘q, chunki o‘zgarmas tokda induksiya hodisasi bo‘lmaydi", "Ha, u kuchlanishni oshiradi", "Faqat yuklama kam bo‘lganda", "Ha, u xavfsizlikni ta'minlaydi"]},
+  {"q": "Avtotransformatorning oddiy transformatordan asosiy farqi nimada?", "options": ["Unda faqat bitta cho‘lg‘am bo‘ladi", "U faqat yuqori kuchlanishda ishlaydi", "Unda magnit o‘zagi bo‘lmaydi", "U foydali ish koeffitsientiga ega emas"]},
+  {"q": "Sinxron mashinalarning asosiy xarakterli xususiyati nimada?", "options": ["Rotor tezligi magnit maydon tezligiga teng", "Rotor tezligi magnit maydon tezligidan orqada qoladi", "Ular faqat o‘zgarmas tokda ishlaydi", "Ularda cho‘lg‘amlar bo‘lmaydi"]},
+  {"q": "Asinxron motorlarda sirpanish (s) deb nimaga aytiladi?", "options": ["Stator va rotor tezliklari ayirmasining stator tezligiga nisbatan", "Rotorning aylanish davriga", "Stator maydonining chastotasiga", "Rotor qarshiligining ortishiga"]},
+  {"q": "Asinxron motor normal ishlayotganda sirpanish qiymati qaysi oraliqda bo‘ladi?", "options": ["0 < s < 1", "s = 0", "s = 1", "s > 1"]},
+  {"q": "O‘zgaruvchan tok zanjiridagi quvvat koeffitsienti nima?", "options": ["cos f", "sin f", "tan f", "tg f"]},
+  {"q": "Quvvat koeffitsientini (cos f) oshirish uchun korxonalarda zanjirga nima ulanadi?", "options": ["Kondensatorlar batareyasi", "Qarshiliklar", "Drossellar", "Transformatorlar"]},
+  {"q": "Elektr energiyasini uzoq masofaga uzatishda isrofni kamaytirish uchun nima qilinadi?", "options": ["Kuchlanish oshiriladi", "Tok kuchi oshiriladi", "Qarshilik oshiriladi", "Kuchlanish kamaytirilari"]},
+  {"q": "Solishtirma qarshilik birligi nima?", "options": ["Om * m", "Om / m", "Simens / m", "Vatt * m"]},
+  {"q": "Elektr zanjiridagi qisqa tutashuv deb nimaga aytiladi?", "options": ["Yuklama qarshiligi nolgacha kamayib, tok keskin ortishi", "Zanjirning uzilib qolishi", "Kuchlanishning keskin tushib ketishi", "Manba quvvatining yetishmasligi"]},
+  {"q": "Zanjirni qisqa tutashuvdan va o‘ta yuqori tokdan himoya qilish uchun qaysi element ishlatiladi?", "options": ["Saqlagich (Predoxranitel) yoki avtomat", "Voltmetr", "Kondensator", "Reostat"]},
+  {"q": "Elektr maydon kuchlanganligi birligi nima?", "options": ["V / m yoki N / Kl", "Kl / m", "J / Kl", "Farad / m"]},
+  {"q": "Ikki nuqta orasidagi potensiallar ayirmasi nima deb ataladi?", "options": ["Kuchlanish", "Tok kuchi", "Zaryad", "Maydon kuchlanganligi"]},
+  {"q": "Elektrotexnik po‘latlardan nima uchun transformator o‘zaklari yasaladi?", "options": ["Magnit o‘tkazuvchanligi yuqoriligi va isrofni kamaytirishi uchun", "Ular arzon bo‘lgani uchun", "Elektr tokini yaxshi o‘tkazgani uchun", "Yaxshi qizigani uchun"]},
+  {"q": "Magnit maydonida harakatlanayotgan zaryadli zarrachaga ta'sir etuvchi kuch qanday ataladi?", "options": ["Lorens kuchi", "Amper kuchi", "Kulon kuchi", "Nyuton kuchi"]},
+  {"q": "Magnit maydonidagi tokli o‘tkazgichga ta'sir etuvchi kuch qanday ataladi?", "options": ["Amper kuchi", "Lorens kuchi", "Kulon kuchi", "Om kuchi"]},
+
+  // 91-120
+  {"q": "Gisterezis uyurmasi (petlyasi) nima haqida ma'lumot beradi?", "options": ["Ferromagnit materiallarning qayta magnitlanish xususiyati", "Kondensatorning zaryadlanishi", "Diodning volt-amper xarakteristikasi", "Zanjirning chastotaviy xarakteristikasi"]},
+  {"q": "Fuko toklari (uyurmali toklar) nima?", "options": ["Yaxlit metall o‘zaklarda o‘zgaruvchan magnit maydon ta'sirida hosil bo‘lgan ichki toklar", "Zanjir uzilganda hosil bo‘ladigan uchqun", "Yarimo‘tkazgichdaygi kovaklar oqimi", "Yashin urganda hosil bo‘ladigan tok"]},
+  {"q": "Fuko toklarini kamaytirish uchun transformator o‘zaklari qanday tayyorlanadi?", "options": ["Bir-biridan izolatsiyalangan yupqa po‘lat plastinalardan yig‘iladi", "Yaxlit quyma temirdan yasaladi", "Mis simlardan o‘raladi", "Plastmassadan tayyorlanadi"]},
+  {"q": "O‘zgarmas tok generatorining kommutatori (kollektori) qanday vazifani bajaradi?", "options": ["Cho‘lg‘amdagi o‘zgaruvchan EYuKni tashqi zanjir uchun o‘zgarmas kuchlanishga aylantiradi", "Tezlikni oshiradi", "Tokni cheklaydi", "Zanjirni himoya qiladi"]},
+  {"q": "Magnit maydonining energiya zichligi qaysi kattalikka bog‘liq?", "options": ["Magnit induksiyasi kvadratiga", "G‘altak o‘ramlar soniga", "Tok kuchining birinchi darajasiga", "Simning qalinligiga"]},
+  {"q": "O‘tkazgich elektr sig’imi nimaga bog’liq?", "options": ["Uning shakli, o‘lchamlari va atrofidagi muhitga", "Unga berilgan zaryad miqdoriga", "Uning uchlaridagi kuchlanishga", "Undan o‘tayotgan tok kuchiga"]},
+  {"q": "Yassi kondensatorning sig‘imini topish formulasini ko‘rsating.", "options": ["C = e * e0 * S / d", "C = q / U", "C = 2 * pi * e * l", "C = q * U / 2"]},
+  {"q": "Kondensatorlar ketma-ket ulanganda qaysi kattalik har bir kondensatorda bir xil bo‘ladi?", "options": ["Zaryad (q)", "Kuchlanish (U)", "Sig’im (C)", "Energiya (W)"]},
+  {"q": "Kondensatorlar parallel ulanganda qaysi kattalik har bir kondensatorda bir xil bo‘ladi?", "options": ["Kuchlanish (U)", "Zaryad (q)", "Energiya (W)", "Hech biri"]},
+  {"q": "R1, R2 va R3 qarshiliklar ketma-ket ulangan. Umumiy qarshilik qanday topiladi?", "options": ["R = R1 + R2 + R3", "1/R = 1/R1 + 1/R2 + 1/R3", "R = R1 * R2 * R3", "R = (R1+R2)/R3"]},
+  {"q": "R1, R2 va R3 qarshiliklar parallel ulangan. Umumiy qarshilik qanday topiladi?", "options": ["1/R = 1/R1 + 1/R2 + 1/R3", "R = R1 + R2 + R3", "R = R1 * R2 * R3", "R = R1 + R2 / R3"]},
+  {"q": "To‘liq zanjir uchun Om qonuni qaysi?", "options": ["I = E / (R + r)", "I = U / R", "I = q / t", "U = E - I*r"]},
+  {"q": "Manbaning EYuK (Elektr yurituvchi kuch) birligi nima?", "options": ["Volt", "Nyuton", "Amper", "Vatt"]},
+  {"q": "Elektr zanjirida manbaning foydali ish koeffitsienti (FIK) qachon maksimal bo‘ladi?", "options": ["Tashqi qarshilik ichki qarshilikdan ancha katta bo‘lganda (R >> r)", "Qisqa tutashuvda", "Tashqi qarshilik ichki qarshilikka teng bo‘lganda (R = r)", "R = 0 bo‘lganda"]},
+  {"q": "Tashqi zanjirda maksimal quvvat ajralish sharti (moslashish sharti) qanday?", "options": ["R = r", "R >> r", "R << r", "r = 0"]},
+  {"q": "Solishtirma o‘tkazuvchanlik nima?", "options": ["Solishtirma qarshilikka teskari kattalik", "Tok zichligining bir turi", "Dielektrik singdiruvchanlik", "Qarshilikning harorat koeffitsienti"]},
+  {"q": "O‘tkazgich qarshiligi harorat oshishi bilan qanday o‘zgaradi (metallar uchun)?", "options": ["Ortadi", "Kamayadi", "O‘zgarmaydi", "Dastlab ortib, keyin kamayadi"]},
+  {"q": "Yarimo‘tkazgichlar qarshiligi harorat oshishi bilan qanday o‘zgaradi?", "options": ["Kamayadi", "Ortadi", "O‘zgarmaydi", "Keskin ortadi"]},
+  {"q": "O‘ta o‘tkazuvchanlik hodisasi nima?", "options": ["Past haroratlarda o‘tkazgich qarshiligi mutloq nolgacha tushishi", "Tok kuchining cheksiz ortib ketishi", "Kuchlanishning yo‘qolishi", "Dielektrikning teshilishi"]},
+  {"q": "Elektr yurituvchi kuch (EYuK) nima?", "options": ["Begona kuchlarning birlik musbat zaryadni ko‘chirishdagi bajargan ishi", "Zanjirdagi mexanik kuch", "Elektronlarning tezligi", "Magnit maydon kuchi"]},
+  {"q": "Zanjir qismidagi kuchlanish tushuvi nima?", "options": ["Elektr maydon kuchlarining zaryadni ko‘chirishda bajargan ishi", "Manba ichidagi energiya isrofi", "Tok o‘tishiga to‘sqinlik qiluvchi kuch", "Zanjirning uzilishi"]},
+  {"q": "Vakuumda elektr toki nima hisobiga hosil bo‘ladi?", "options": ["Termoelektron emissiya hisobiga ajralgan elektronlar oqimi", "Musbat va manfiy ionlar", "Kovaklar harakati", "Plazma oqimi"]},
+  {"q": "Gazlarda elektr toki nima hisobiga hosil bo‘ladi?", "options": ["Elektronlar, musbat va manfiy ionlar", "Faqat elektronlar", "Faqat ionlar", "Neytronlar oqimi"]},
+  {"q": "Elektrolitlarda elektr toki nima hisobiga hosil bo‘ladi?", "options": ["Musbat va manfiy ionlar", "Erkin elektronlar", "Kovaklar va elektronlar", "Molekulalar harakati"]},
+  {"q": "Yarimo‘tkazgichlarda asosiy zaryad tashuvchilar nima?", "options": ["Elektronlar va kovaklar", "Ionlar", "Protonlar", "Neytronlar"]},
+  {"q": "N-tipli yarimo‘tkazgichda asosiy zaryad tashuvchilar qaysilar?", "options": ["Elektronlar", "Kovaklar", "Ionlar", "Protonlar"]},
+  {"q": "P-tipli yarimo‘tkazgichda asosiy zaryad tashuvchilar qaysilar?", "options": ["Kovaklar", "Elektronlar", "Neytronlar", "Ionlar"]},
+  {"q": "P-N o‘tish (p-n perexod) nima?", "options": ["P va N tipli yarimo‘tkazgichlar tutashgan chegara qatlam", "Diodning simi", "Elektronlar manbai", "Izolyator turi"]},
+  {"q": "Elektroliz uchun Faradeyning birinchi qonuni formulasi qaysi?", "options": ["m = k * q  yoki  m = k * I * t", "m = V * p", "F = m * a", "E = m * c^2"]},
+  {"q": "O‘zgaruvchan tok nima?", "options": ["Vaqt o‘tishi bilan ham qiymati, ham yo‘nalishi o‘zgaradigan tok", "Faqat qiymati o‘zgaradigan tok", "Faqat yo‘nalishi o‘zgaradigan tok", "Doimiy bir xil oqadigan tok"]},
+
+  // 121-150
+  {"q": "O‘zgaruvchan tokning samarali (ta'sir etuvchi) qiymati amplituda qiymatidan necha marta kichik?", "options": ["sqrt(2) marta", "2 marta", "3 marta", "pi marta"]},
+  {"q": "Bizning uylardagi 220 V kuchlanish o‘zgaruvchan tokning qaysi qiymatini ifodalaydi?", "options": ["Samarali (ta'sir etuvchi) qiymatini", "Amplituda qiymatini", "O‘rtacha qiymatini", "Eng kichik qiymatini"]},
+  {"q": "Uylardagi 220 V o‘zgaruvchan tokning maksimal (amplituda) kuchlanishi qancha bo‘ladi?", "options": ["311 V", "220 V", "380 V", "127 V"]},
+  {"q": "O‘zgaruvchan tokning chastotasi deb nimaga aytiladi?", "options": ["1 sekunddagi to‘liq tebranishlar soniga", "Bitta tebranish uchun ketgan vaqtga", "Tokning tezligiga", "Kuchlanish amplitudasiga"]},
+  {"q": "O‘zgaruvchan tokning burchak chastotasi (omega) va oddiy chastotasi (f) orasidagi bog‘liqlik qanday?", "options": ["omega = 2 * pi * f", "omega = f / (2 * pi)", "omega = 2 * pi / f", "omega = pi * f"]},
+  {"q": "Faza farqi (siljishi) nima?", "options": ["Kuchlanish va tokning tebranish fazalari orasidagi ayirma", "Ikki sim orasidagi masofa", "Chastotalar ayirmasi", "Tok kuchining ortishi"]},
+  {"q": "Faqat aktiv qarshilikli zanjirda kuchlanish va tok orasidagi faza farqi qancha bo‘ladi?", "options": ["0 (faza bo‘yicha mos keladi)", "pi / 2", "-pi / 2", "pi"]},
+  {"q": "Faqat induktivlikka ega zanjirda kuchlanish tokdan faza bo‘yicha qancha oldinda bo‘ladi?", "options": ["pi / 2  (90 daraja)", "0", "pi", "-pi / 2"]},
+  {"q": "Faqat sig’imga ega zanjirda tok kuchlanishdan faza bo‘yicha qancha oldinda bo‘ladi?", "options": ["pi / 2  (90 daraja)", "0", "pi", "45 daraja"]},
+  {"q": "Ketma-ket ulangan RLC zanjirining to‘la qarshiligi qanday topiladi?", "options": ["Z = sqrt(R^2 + (Xl - Xc)^2)", "Z = R + Xl + Xc", "Z = sqrt(R^2 + Xl^2 + Xc^2)", "Z = R * Xl * Xc"]},
+  {"q": "Parallel ulangan RLC zanjirida qaysi rezonans turi kuzatiladi?", "options": ["Toklar rezonansi", "Kuchlanishlar rezonansi", "Chastota rezonansi", "Faza rezonansi"]},
+  {"q": "Ketma-ket ulangan RLC zanjirida qaysi rezonans turi kuzatiladi?", "options": ["Kuchlanishlar rezonansi", "Toklar rezonansi", "Qarshiliklar rezonansi", "Quvvat rezonansi"]},
+  {"q": "Kuchlanishlar rezonansi yuz berganda to‘la qarshilik qanday qiymatga ega bo‘ladi?", "options": ["Eng kichik (faqat R ga teng)", "Eng katta (cheksiz)", "Nolga teng", "Xl ga teng"]},
+  {"q": "Toklar rezonansi yuz berganda zanjirning to‘la qarshiligi qanday bo‘ladi?", "options": ["Eng katta qiymatga ega bo‘ladi", "Eng kichik qiymatga ega bo‘ladi", "Nolga teng bo‘ladi", "O‘zgarmaydi"]},
+  {"q": "O‘zgaruvchan tok zanjirida aktiv quvvat formulasi qaysi?", "options": ["P = U * I * cos f", "Q = U * I * sin f", "S = U * I", "P = I^2 * Z"]},
+  {"q": "Elektromagnit induksiya qonunining (Faradey qonuni) matematik ifodasi qaysi?", "options": ["E = - dF / dt", "F = qVB", "E = kI", "F = -kx"]},
+  {"q": "Faradey qonunidagi minus isorasi qaysi qoidani ifodalaydi?", "options": ["Lens qoidasini (induksion tok o‘zini tug‘dirgan sababga qarshi yo‘naladi)", "Kirxgof qoidasini", "Om qonunini", "Kulon qonunini"]},
+  {"q": "O‘z-o‘zidan induksiya EYuK (o‘zinduksiya) formulasi qaysi?", "options": ["E = - L * dI / dt", "E = - dF / dt", "E = Bvlsina", "W = LI^2 / 2"]},
+  {"q": "O‘zaro induksiya hodisasi nimaga asoslangan?", "options": ["Bitta g‘altakdagi tok o‘zgarishi ikkinchi g‘altakda EYuK hosil qilishiga", "Kondensatorning zaryadsizlanishiga", "Diodning ishlashiga", "Rezistorning qizishiga"]},
+  {"q": "Transformatorning ishlash prinsipi qaysi hodisaga asoslangan?", "options": ["O‘zaro elektromagnit induksiya hodisasiga", "O‘z-o‘zidan induksiya hodisasiga", "Kulon ta'siriga", "Joul-Lens effektiga"]},
+  {"q": "Transformator cho‘lg‘amlari o‘zaro elektr jihatdan ulanganmi?", "options": ["Yo‘q, eles faqat magnit maydon orqali bog‘langan", "Ha, ular ketma-ket ulangan", "Ha, ular parallel ulangan", "Faqat yuqori kuchlanishli transformatorda ulangan"]},
+  {"q": "Transformator yuklamasiz ishlaganda (salt ishlash) ikkilamchi zanjirdagi tok qanchaga teng?", "options": ["Nolga teng", "Nominal tokka teng", "Maksimal tokka teng", "Isrof tokiga teng"]},
+  {"q": "Uch fazali simlar tizimida neytral (nol) sim nima uchun kerak?", "options": ["Faza kuchlanishlarini tenglashtirish va bir fazali iste'molchilarni ulash uchun", "Tokni oshirish uchun", "Zanjirni qisqa tutashuvdan saqlash uchun", "Simlarni tejash uchun"]},
+  {"q": "Simmetrik yuklamada neytral simdan o‘tayotgan tok qanchaga teng bo‘ladi?", "options": ["Nolga teng", "Faza toki yig‘indisiga teng", "Liniya tokiga teng", "Maksimal qiymatga ega"]},
+  {"q": "Uch fazali iste'molchiga misol keltiring.", "options": ["Uch fazali asinxron motor", "Televizor", "Muzlatgich", "Dazmol"]},
+  {"q": "Aylanuvchi magnit maydon hosil qilish uchun minimal nechta faza kerak?", "options": ["Kamida uchta faza (yoki maxsus kondensatorli ikki faza)", "Bitta faza yetarli", "To‘rtta faza", "O‘zgarmas tok manbai"]},
+  {"q": "Asinxron motorda stator nima?", "options": ["Mashinaning qo‘zg‘almas qismi", "Mashinaning aylanuvchi qismi", "Cho‘tkalar majmuasi", "Val o‘qi"]},
+  {"q": "Asinxron motorda rotor nima?", "options": ["Mashinaning aylanuvchi qismi", "Korpusi", "Klemens qutisi", "Magnit o‘zagi"]},
+  {"q": "Qisqa tutashgan rotorli asinxron motorning afzalligi nimada?", "options": ["Tuzilishi oddiy, ishonchli va arzon", "Tezligini juda oson sozlash mumkinligi", "Ishga tushirish toki juda kichikligi", "FIK koeffitsienti har doim 100% ligi"]},
+  {"q": "Sinxron generatorlar qayerda ishlatiladi?", "options": ["Elektr stansiyalarida (Gidro, Issiqlik, Atom) elektr energiyasi ishlab chiqarish uchun", "Maishiy texnikada", "Tramvaylarda", "Telefon zaryadchiklarida"]},
+
+  // 151-180
+  {"q": "O‘zgarmas tok mashinalari nima uchun asinxron mashinalarga qaraganda kamroq ishlatiladi?", "options": ["Kollektor-cho‘tka uzatmasi borligi va tez eskirishi sababli", "Foydali ish koeffitsienti juda pastligi uchun", "Ular juda kichik quvvatga egaligi uchun", "O‘zgarmas tok xavfli bo‘lgani uchun"]},
+  {"q": "Elektr o‘lchash asboblarining aniqlik sinfi nima?", "options": ["Asbobning yo‘l qo‘yishi mumkin bo‘lgan eng katta nisbiy xatoligi foizda", "Asbobning og‘irligi", "Asbobning narxi", "U o‘lchashi mumkin bo‘lgan maksimal qiymat"]},
+  {"q": "Raqamli o‘lchash asboblarining analog (strelkali) asboblardan afzalligi nimada?", "options": ["Aniq ko‘rsatishi, tezkorligi va inson xatoligini kamaytirishi", "Arzonligi", "Toksiz ham ishlashi", "Katta o‘lchamlari"]},
+  {"q": "Shunt nima va u nima uchun ishlatiladi?", "options": ["Ampermetrga parallel ulanadigan qarshilik, o‘lchash ko‘lamini oshirish uchun", "Voltmetrga ketma-ket ulanadigan qarshilik", "Zanjirni uzuvchi kalit", "Kondensator turi"]},
+  {"q": "Qo‘shimcha qarshilik (dobavochnoye soprotivleniye) nima uchun ishlatiladi?", "options": ["Voltmetrga ketma-ket ulib, uning o‘lchash ko‘lamini oshirish uchun", "Ampermetr tokini kamaytirish uchun", "Zanjirni qizdirish uchun", "Kuchlanishni barqarorlashtirish uchun"]},
+  {"q": "Multimetr qanday asbob?", "options": ["Kuchlanish, tok va qarshilikni o‘lchaydigan universal asbob", "Faqat quvvatni o‘lchaydigan asbob", "Faqat chastotani o‘lchaydigan asbob", "Elektr hisoblagich"]},
+  {"q": "Elektr zanjiri nima?", "options": ["Elektr toki oqishi uchun mo‘ljallangan qurilmalar va o‘tkazgichlar majmuasi", "Faqatgina manba va kalit", "Faqat mis simlar", "Tok ishlab chiqaruvchi stansiya"]},
+  {"q": "Elektr zanjirining asosiy qismlari qaysilar?", "options": ["Manba, iste'molchi, o‘tkazgich va boshqarish qurilmalari", "Faqat sim va lampochka", "Generator va transformator", "Akkumulyator va voltmetr"]},
+  {"q": "Tarmoqlangan elektr zanjiri deb nimaga aytiladi?", "options": ["Tugunlarga ega bo‘lgan va tok bir nechta yo‘nalishda oqishi mumkin bo‘lgan zanjirga", "Faqat bitta halqadan iborat zanjirga", "Hech qanday iste'molchisi yo‘q zanjirga", "Faqat parallel elementlardan iborat zanjirga"]},
+  {"q": "Elektr zanjirining tuguni deb nimaga aytiladi?", "options": ["Kamida uchta o‘tkazgich tutashgan nuqtaga", "Ikki sim ulangan joyga", "Kalit o‘rnatilgan joyga", "Izolyatsiya qilingan qismga"]},
+  {"q": "Elektr zanjirining tarmog‘i (vetv) nima?", "options": ["Ikkita qo‘shni tugun orasidagi zanjir qismi", "Tugunlarning o‘zi", "Simning yo‘g‘on qismi", "Manbaga ulangan sim"]},
+  {"q": "Elektr zanjirining konturi nima?", "options": ["Bir nechta tarmoqlar orqali o‘tuvchi har qanday berk yo‘l", "Zanjirning tashqi ko‘rinishi", "Tugunlar yig‘indisi", "Faqat manba joylashgan qism"]},
+  {"q": "Solishtirma o‘tkazuvchanlik birligi nima?", "options": ["Simens / metr", "Om / metr", "Vatt / metr", "Farad / metr"]},
+  {"q": "Chiziqli elektr zanjiri nima?", "options": ["Hamma elementlarining qarshiligi o‘zgarmas (chiziqli) bo‘lgan zanjir", "To‘g‘ri chiziq shaklida tortilgan zanjir", "Elementlari parallel ulangan zanjir", "Faqat bitta manbaga ega zanjir"]},
+  {"q": "Chiziqsiz elektr zanjiri nima?", "options": ["Tarkibida kamida bitta chiziqsiz element (diod, tranzistor, lampa) bo‘lgan zanjir", "Egri-bugri simlardan iborat zanjir", "Faqat o o‘zgarmas tokda ishlaydigan zanjir", "Hech qanday qarshiligi yo‘q zanjir"]},
+  {"q": "Ideal tok manbai nima?", "options": ["Ichki qarshiligi cheksiz katta (r = cheksiz) bo‘lgan manba", "Ichki qarshiligi nolga teng bo‘lgan manba", "Hech qanday quvvat sarflamaydigan manba", "Faqat o‘zgaruvchan tok beradigan manba"]},
+  {"q": "Ideal kuchlanish manbai nima?", "options": ["Ichki qarshiligi nolga teng (r = 0) bo‘lgan manba", "Ichki qarshiligi cheksiz katta bo‘lgan manba", "Kuchlanishi har doim o‘zgarib turadigan manba", "Tok bermaydigan manba"]},
+  {"q": "Zanjirni hisoblashda superpozitsiya (ustma-ust qo‘yish) usuli nimaga asoslangan?", "options": ["Zanjirdagi har bir manbaning alohida hosil qilgan toklari yig‘indisiga", "Kirxgof qonunlariga", "Zanjirni parallel qismlarga ajratishga", "Quvvatlar balansiga"]},
+  {"q": "Tugun potensiallari usuli nima uchun ishlatiladi?", "options": ["Zanjir tugunlaridagi potensiallarni aniqlash orqali tarmoq toklarini topish uchun", "Zanjir qarshiligini kamaytirish uchun", "Faqat kontur toqlarini hisoblash uchun", "Manba EYuKini aniqlash uchun"]},
+  {"q": "Kontur toklari usulining afzalligi nimada?", "options": ["Tenglamalar sonini kamaytiradi (Kirxgof qonunlariga qaraganda)", "Zanjir elementlarini kamaytiradi", "Faqat parallel zanjirlarga qo‘llaniladi", "Hisoblash xatolarini butunlay yo‘qotadi"]},
+  {"q": "Ekvivalent generator teoremasi nima deyiladi?", "options": ["Aktiv ikkiqutblini bitta ekvivalent EYuK va ichki qarshilik bilan almashtirish mumkinligi", "Zanjirda har doim bitta generator bo‘lishi shartligi", "Parallel zanjirlarni ketma-ketga o‘tkazish", "Tok manbaini kuchlanish manbaiga aylantirish"]},
+  {"q": "Ikkiqutbli (dvuxpolyusnik) nima?", "options": ["Tashqi zanjirga ulanish uchun ikkita qisqichga (polyusga) ega bo‘lgan sxema qismi", "Faqat ikkita qarshiligi bor sxema", "Ikkita manbaga ega zanjir", "Diod va tranzistor ulanmasi"]},
+  {"q": "Passiv ikkiqutbli nima?", "options": ["Tarkibida hech qanday energiya manbai (EYuK yoki tok manbai) bo‘lmagan zanjir qismi", "Ishlamayotgan generator", "Faqat bitta kalitga ega zanjir", "Tok o‘tkazmaydigan qism"]},
+  {"q": "Aktiv ikkiqutbli nima?", "options": ["Tarkibida energiya manbalari bo‘lgan zanjir qismi", "Faqat o‘tkazgichlardan iborat qism", "Kuchlanish tushuvi nolga teng bo‘lgan qism", "Kondensatorlar to‘plami"]},
+  {"q": "Dielektrik nima?", "options": ["Elektr tokini o‘tkazmaydigan (yoki juda yomon o‘tkazadigan) modda", "Eng yaxshi o‘tkazgich", "Faqat suyuq holatda bo‘ladigan o‘tkazgich", "Magnit maydon hosil qiluvchi element"]},
+  {"q": "Moddalarning dielektrik singdiruvchanligi (epsilon) nimani ko‘rsatadi?", "options": ["Muhitda elektr maydon kuchi vakuumdagiga qaraganda necha marta kamayishini", "Tok o‘tkazuvchanlik darajasini", "Moddaning og‘irligini", "Moddaning erish haroratini"]},
+  {"q": "Vakuumning dielektrik singdiruvchanligi qanchaga teng?", "options": ["1", "0", "8.85 * 10^-12", "cheksiz"]},
+  {"q": "Elektr doimiysi (e0) ning qiymati qancha?", "options": ["8.85 * 10^-12 F / m", "9 * 10^9 N * m^2 / Kl^2", "1.6 * 10^-19 Kl", "1.26 * 10^-6 H / m"]},
+  {"q": "Magnit doimiysi (m0) ning qiymati qancha?", "options": ["1.26 * 10^-6 H / m", "8.85 * 10^-12 F / m", "3 * 10^8 m / s", "1.6 * 10^-19 Kl"]},
+  {"q": "Nisbiy magnit o‘tkazuvchanlik (mu) nimani ko‘rsatadi?", "options": ["Muhitdagi magnit maydoni vakuumdagidan necha marta kuchli ekanligini", "Tok kuchi necha marta ortishini", "G‘altakning qarshiligini", "Transformatsiya koeffitsientini"]},
+
+  // 181-197 (Oxirgi blok)
+  {"q": "Ferromagnit moddalarga misol keltiring.", "options": ["Temir, nikel, kobalt", "Mis, alyuminiy, oltin", "Plastmassa, shisha, yog‘och", "Suv, havo, vodorod"]},
+  {"q": "Paramagnit moddalar nima?", "options": ["Magnit maydonini biroz kuchaytiradigan moddalar (mu > 1)", "Magnit maydonini juda kuchli oshiradigan moddalar", "Magnit maydonini susaytiradigan moddalar", "Magnitga mutloq ta'sir qilmaydigan moddalar"]},
+  {"q": "Diamagnit moddalar nima?", "options": ["Magnit maydonini biroz susaytiradigan moddalar (mu < 1)", "Magnit maydonini kuchaytiradigan moddalar", "Faqat suyuqliklar", "Doimiy magnitlar"]},
+  {"q": "Kyuri nuqtasi (harorati) nima?", "options": ["Ferromagnit modda o‘zining magnit xususiyatlarini yo‘qotib, paramagnitga aylanadigan harorat", "O‘tkazgich erish harorati", "O‘ta o‘tkazuvchanlik boshlanadigan harorat", "Kondensator teshilish harorati"]},
+  {"q": "Elektromagnit to‘lqinlarning vakuumdagi tarqalish tezligi qancha?", "options": ["3 * 10^8 m / s  (yorug‘lik tezligi)", "340 m / s", "100 000 km / s", "11.2 km / s"]},
+  {"q": "Elektromagnit to‘lqin uzunligi (lambda), chastota (f) va tezlik (c) orasidagi bog‘liqlik formula qaysi?", "options": ["lambda = c / f", "lambda = c * f", "lambda = f / c", "lambda = sqrt(c * f)"]},
+  {"q": "Tebranish konturi nimadan iborat?", "options": ["O‘zaro ulangan kondensator va g‘altakdan", "Rezistor va batareyadan", "Diod va tranzistordan", "Transformator va voltmetrdan"]},
+  {"q": "Ideal tebranish konturida qanday jarayon yuz beradi?", "options": ["Elektr va magnit maydon energiyalarining davriy almashinuvi (so‘nmas tebranishlar)", "Energiyaning issiqlikka aylanishi", "Faqat kondensatorning zaryadlanishi", "Tokning to‘xtashi"]},
+  {"q": "Haqiqiy tebranish konturida tebranishlar nima uchun so‘niydi?", "options": ["G‘altak va simlarning aktiv qarshiligi (R) hisobiga energiya issiqlikka aylanib isrof bo‘lgani uchun", "Kondensator sig’imi kamaygani uchun", "Magnit maydoni yo‘qolgani uchun", "Kuchlanish oshgani uchun"]},
+  {"q": "Logarifmik dekrement nima?", "options": ["Tebranish konturida tebranishlarning so‘nish tezligini xarakterlovchi kattalik", "Chastota koeffitsienti", "Kuchaytirish koeffitsienti", "Rezonans chastotasi"]},
+  {"q": "Tebranish konturining sifatliligi (dobrotnost - Q) nimani ko‘rsatadi?", "options": ["Tebranish tizimida to‘plangan energiyaning bir davrda isrof bo‘lgan energiyaga nisbatini", "Kondensatorning sifatini", "G‘altak o‘ramlari sifatini", "Tebranish tezligini"]},
+  {"q": "G‘altakning induktiv qarshiligi chastotaga qanday bog‘liq?", "options": ["To‘g‘ri proporsional (chastota oshsa, ortadi)", "Teskari proporsional", "Kvadratik teskari bog‘liq", "Bog‘liq emas"]},
+  {"q": "Kondensatorning sig‘im qarshiligi chastotaga qanday bog‘liq?", "options": ["Teskari proporsional (chastota oshsa, kamayadi)", "To‘g‘ri proporsional", "Chastotaya bog‘liq emas", "Chastota oshsa chiziqli ortadi"]},
+  {"q": "O‘zgarmas tok uchun kondensator qanday qarshilikka ega?", "options": ["Cheksiz katta qarshilikka (o‘zgarmas tokni o‘tkazmaydi)", "Nolga teng qarshilikka", "10 Om qarshilikka", "Aktiv qarshilikka"]},
+  {"q": "O‘zgarmas tok uchun ideal g‘altak qanday qarshilikka ega?", "options": ["Nolga teng qarshilikka (faqat aktiv qarshiligi bo‘lishi mumkin)", "Cheksiz katta qarshilikka", "Sig’im qarshiligiga teng", "100 Om qarshilikka"]},
+  {"q": "Drossel nima?", "options": ["O‘zgaruvchan tokni cheklash yoki yuqori chastotali signallarni to‘sish uchun ishlatiladigan katta induktivlikka ega g‘altak", "Kondensatorning bir turi", "O‘zgarmas tok generatori", "Elektr o‘lchash asbobobi"]},
+  {"q": "Elektr filtrlari nima uchun ishlatiladi?", "options": ["Ma'lum chastotali signallarni o‘tkazib, boshqalarini to‘sish (filtratlash) uchun", "Tokni to‘g‘rilash uchun", "Kuchlanishni oshirish uchun", "Zanjirni changdan tozalash uchun"]},
+  {"q": "Past chastota filtri (FChN) qanday signallarni o‘tkazadi?", "options": ["Kesmacha chastotadan past bo‘lgan signallarni o‘tkazadi, yuqorisini to‘sadi", "Faqat yuqori chastotalarni o‘tkazadi", "Hamma chastotalarni to‘sadi", "Faqat o‘zgarmas tokni to‘sadi"]},
+  {"q": "Yuqori chastota filtri (FVCh) qanday signallarni o‘tkazadi?", "options": ["Kesmacha chastotadan yuqori bo‘lgan signallarni o‘tkazadi, pastini to‘sadi", "Faqat past chastotalarni o‘tkazadi", "Faqat o‘zgarmas tokni o‘tkazadi", "Hech qaysi chastotani o‘tkazmaydi"]},
+  {"q": "Rezonans chastotasi formulasini ko’rsating.", "options": ["f0 = 1 / (2 * pi * sqrt(L * C))", "f0 = 2 * pi * L * C", "f0 = 1 / (L * C)", "f0 = sqrt(L / C)"]},
+  {"q": "Uch fazali simmetrik tizimda fazalar bir-biridan burchak bo‘yicha qanchaga farq qiladi?", "options": ["120 daraja (2*pi / 3)", "90 daraja", "180 daraja", "0 daraja"]},
+  {"q": "Uch fazali generatorda nechta cho‘lg‘am bo‘ladi?", "options": ["3 ta", "1 ta", "2 ta", "4 ta"]},
+  {"q": "Uch fazali zanjirda neytral sim qaysi rangda belgilanadi (xalqaro standart bo‘yicha)?", "options": ["Ko‘k (Moviy)", "Qizil", "Sariq", "Yashil"]},
+  {"q": "Uch fazali zanjirda yerlatish (zazemleniye) simi qaysi rangda bo‘ladi?", "options": ["Sariq-yashil yo‘lli", "Qora", "Oq", "Qizil"]},
+  {"q": "Elektr asboblarining korpusini yerlatishdan asosiy maqsad nima?", "options": ["Insonni elektr toki urishidan himoya qilish (Xavfsizlik)", "Asbobning quvvatini oshirish", "Elektr energiyasini tejash", "Kuchlanishni barqaror qilish"]},
+  {"q": "Kuchlanish transformatori zanjirga qanday ulanadi?", "options": ["Parallel", "Ketma-ket", "Aralash", "Ulanmaydi"]},
+  {"q": "Tok transformatori zanjirga qanday ulanadi?", "options": ["Ketma-ket", "Parallel", "Faqat neytral simga", "Aralash"]},
+  {"q": "Tok transformatori ishlayotganda uning ikkilamchi cho‘lg‘amini ochiq qoldirish mumkinmi?", "options": ["Yo‘q, mutloq mumkin emas (xavfli yuqori kuchlanish hosil bo‘ladi va yonib ketadi)", "Ha, mumkin, hech narsa bo‘lmaydi", "Faqat salt ishlashda mumkin", "Yuklama yo‘g‘ida mumkin"]},
+  {"q": "Transformatorning po‘lat o‘zagida qanday isroflar mavjud?", "options": ["Gisterezis va Fuko toklari isroflari (Po‘latdagi isroflar)", "Faqat simlarning qizish isrofi", "Mexanik ishqalanish isrofi", "Radiatsiya isrofi"]},
+  {"q": "Transformator cho‘lg‘amlaridagi isrof nima deb ataladi?", "options": ["Misdagi isroflar (I^2 * R qizish isrofi)", "Po‘latdagi isroflar", "Gisterezis isrofi", "Magnit oqimi isrofi"]},
+  {"q": "Transformatorning salt ishlash tajribasidan nima aniqlanadi?", "options": ["Po‘latdagi isroflar va transformatsiya koeffitsienti", "Misdagi isroflar", "Qisqa tutashuv kuchlanishi", "Maksimal tok"]},
+  {"q": "Transformatorning qisqa tutashuv tajribasidan nima aniqlanadi?", "options": ["Cho‘lg‘amlardagi (misdagi) isroflar va qisqa tutashuv kuchlanishi", "Po‘latdagi isroflar", "Salt ishlash toki", "FIK koeffitsienti"]},
+  {"q": "Magnit zanjiri nima?", "options": ["Magnit oqimi o‘tadigan elementlar (o‘zaklar, havo tirqishlari) majmuasi", "Elektronlar harakatlanadigan sim", "Faqat havo bo‘shlig‘i", "Kondensator plastinkalar"]},
+  {"q": "Magnit zanjiri uchun Om qonuni qanday ifodalanadi?", "options": ["F = F_magnit / R_magnit", "I = U / R", "B = mu * H", "E = - dF / dt"]},
+  {"q": "Magnitlantiruvchi kuch (MHS - magnitodvijushaya sila) nima?", "options": ["F = I * W (tokning o‘ramlar soniga ko‘paytmasi)", "Magnit maydon tezligi", "G galtak og‘irligi", "Magnit oqimi zichligi"]},
+  {"q": "Magnit qarshiligi (Rm) nimaga bog‘liq?", "options": ["Zanjir uzunligiga, ko‘ndalang kesim yuzasiga va materialning magnit o‘tkazuvchanligiga", "Faqat tok kuchiga", "Faqat kuchlanishga", "G‘altakning o‘ramlar soniga"]},
+  {"q": "O‘zgaruvchan tok zanjirida to‘la qarshilik (Z) biriligi nima?", "options": ["Om", "Simens", "Henri", "Farad"]},
+  {"q": "Sinxron motorlar qayerda ishlatiladi?", "options": ["Doimiy va qat'iy aylanish tezligi talab qilinadigan katta quvvatli qurilmalarda (nasoslar, kompressorlar)", "Kir yuvish mashinalarida", "Sinf qo'ng'irog'ida", "Elektr ustaralarda"]},
+  {"q": "Asinxron motorning aylanish yo‘nalishini (revers) qanday o‘zgartirish mumkin?", "options": ["Statorga kelayotgan uchta fazadan istalgan ikkitasining o‘rnini almashtirish orqali", "Kuchlanishni oshirish orqali", "Tokni kamaytirish orqali", "Rotor qarshiligini o‘zgartirib"]},
+  {"q": "Asinxron motorni ishga tushirishda tokni kamaytirish uchun qaysi usul qo‘llaniladi?", "options": ["Yulduz usulidan uchburchak usuliga o‘tkazish (pusk zvezda-treugolnik)", "Kuchlanishni keskin oshirish", "Rotor simlarini uzish", "Tezlikni kamaytirish"]},
+  {"q": "Chastota o‘zgartirgich (Chastotnik - Invertor) nima uchun kerak?", "options": ["Asinxron motorning aylanish tezligini chastotani o‘zgartirish orqali silliq sozlash uchun", "Kuchlanishni barqarorlash uchun", "Tokni to‘g‘rilash uchun", "Quvvatni oshirish uchun"]},
+  {"q": "O‘zgarmas tok motorlarining asosiy afzalligi nimada?", "options": ["Aylanish tezligini juda keng ko‘lamda va silliq sozlash imkoniyati", "Tuzilishi juda oddiyligi va arzonligi", "Hech qanday parvarish talab qilmasligi", "Yuqori kuchlanishda ishlay olishi"]},
+  {"q": "Elektr dvigatellari va generatorlarining quvvati ko‘pincha qaysi birlikda ko‘rsatiladi?", "options": ["kVt (Kilovatt) yoki Vt", "kVA", "kVAr", "Joul"]},
+  {"q": "Elektr hisoblagich (schyotchik) qaysi kattalikni o‘lchaydi?", "options": ["Iste'mol qilingan elektr energiyasini (kVt * soatda)", "Zanjirdagi tok kuchini", "Zanjir kuchlanishini", "To‘liq quvvatni"]},
+  {"q": "Elektr zanjirlarini grafik tasvirlashda rezistor qanday shaklda chiziladi?", "options": ["To‘g‘ri to‘rtburchak", "Ikki parallel chiziq", "Aylana", "Spiral (galtak)"]},
+  {"q": "Grafik sxemalarda kondensator qanday chiziladi?", "options": ["Ikkita parallel teng chiziq", "To‘g‘ri to‘rtburchak", "Aylana ichidagi harf", "Egri chiziq"]},
+  {"q": "Grafik sxemalarda induktivlik g‘altagi qanday chiziladi?", "options": ["Ketma-ket kelgan yoylardan (spirallardan) iborat chiziq", "To‘rtburchak", "Ikkita parallel chiziq", "Uchburchak"]},
+  {"q": "Reostat nima?", "options": ["Qarshilikni qo‘lda sozlash orqali zanjirdagi tokni boshqaradigan asbob", "Doimiy qarshilik", "Tok manbai", "Kuchlanish transformatori"]},
+  {"q": "Potensiometr nima?", "options": ["Zanjirdagi kuchlanishni rostlab (bo'lib) veruvchi uchta chiquvchi qismga ega rezistor", "Tokni o‘lchovchi asbob", "Kondensator batareyasi", "Izolyator"]},
+  {"q": "Yarimo‘tkazgichli tranzistorlar tayyorlanadigan asosiy material qaysi?", "options": ["Kremniy (Si) va Germaniy (Ge)", "Mis va Mis oksidi", "Temir va Po‘lat", "Plastmassa"]},
+  {"q": "Diod to‘g‘ri ulanganda (to‘g‘ri yo‘nalishda) qanday qarshilikka ega bo‘ladi?", "options": ["Juda kichik qarshilikka (tokni oson o‘tkazadi)", "Juda katta cheksiz qarshilikka", "Nolga teng qarshilikka", "O‘zgaruvchan qarshilikka"]},
+  {"q": "Diod teskari ulanganda (teskari yo‘nalishda) qanday qarshilikka ega bo‘ladi?", "options": ["Juda katta (cheksiz) qarshilikka (tok o‘tkazmaydi)", "Juda kichik qarshilikka", "Aktiv qarshilikka", "O‘zgarmas qarshilikka"]},
+  {"q": "O‘zgaruvchan tokni to‘g‘rilash sxemalarida diodlardan iborat ko‘prik (most) sxemasi nechta dioddan yig‘iladi?", "options": ["4 ta", "2 ta", "1 ta", "6 ta"]},
+  {"q": "Bir yarim davrli to‘g‘rilagichda nechta diod ishlatiladi?", "options": ["1 ta", "2 ta", "4 ta", "6 ta"]},
+  {"q": "Ikki yarim davrli ko‘prikli to‘g‘rilagichning afzalligi nimada?", "options": ["O‘zgaruvchan tokning ikkala yarim davridan ham foydalanadi va pulsatsiyani kamaytiradi", "Kuchlanishni 2 marta oshiradi", "Diodlarni tejaydi", "Filtrlarni talab qilmaydi"]},
+  {"q": "To‘g‘rilangan tokning pulsatsiyasini (to‘lqinlanishini) silliqlash uchun qaysi elementdan foydalaniladi?", "options": ["Silliqlovchi filtrlar (Kondensator va Drossel)", "Qarshilik (Rezistor)", "Transformator", "Voltmetr"]},
+  {"q": "Kondensatorli filtr to‘g‘rilagichning qayeriga ulanadi?", "options": ["Yuklamaga parallel ravishda", "Yuklamaga ketma-ket ravishda", "Manbaga ketma-ket", "Neytral simga"]},
+  {"q": "Stabilitron (Zener diodi) nima uchun xizmat qiladi?", "options": ["Zanjirdagi kuchlanishni o‘zgarmas (barqaror) saqlash uchun", "Tokni kuchaytirish uchun", "Chastotani oshirish uchun", "Tebranish hosil qilish uchun"]},
+  {"q": "Yorug‘lik tarqatuvchi diod (LED) nima?", "options": ["Undan to‘g‘ri yo‘nalishda tok o‘tganda yorug‘lik tarqatuvchi yarimo‘tkazgich asbob", "Fotoelement", "Qizdirgich lampochka", "Izolyator"]},
+  {"q": "Fotodiod nima?", "options": ["Yorug‘lik tushishi ta'sirida o‘zining teskari tokini o‘zgartiradigan yarimo‘tkazgich", "Yorug‘lik beradigan diod", "O‘zgarmas tok manbai", "Issiqlik datchigi"]},
+  {"q": "Termorezistor (Termistor) nima?", "options": ["Qarshiligi haroratga qarab juda kuchli o‘zgaradigan rezistor", "Doimiy rezistor", "Isitgich", "Tok o‘lchagich"]},
+  {"q": "Varistor nima?", "options": ["Qarshiligi unga qo‘yilgan kuchlanish qiymatiga bog‘liq ravishda chiziqsiz o‘zgaradigan asbob", "O‘zgaruvchan kondensator", "Magnit g‘altagi", "Doimiy akkumulyator"]},
+  {"q": "Elektr zanjirlarida xavfsizlik yerlatishi (zazemleniye) qarshiligi maksimal necha Om bo‘lishi kerak (oddiy qurilmalarda)?", "options": ["4 Om", "100 Om", "0 Om", "1000 Om"]},
+  {"q": "Inson tanasining elektr qarshiligi o‘rtacha necha Om deb qabul qilingan (hisob-kitoblarda)?", "options": ["1000 Om", "10 Om", "10 000 Om", "50 Om"]},
+  {"q": "Inson hayoti uchun xavfli bo‘lgan o‘zgaruvchan tok kuchi qiymati qancha?", "options": ["100 mA (0.1 A) va undan yuqori", "1 mA", "10 mA", "5 mA"]},
+  {"q": "Inson uchun xavfsiz hisoblangan maksimal kuchlanish qiymati qancha (quruq xonada)?", "options": ["36 V (yoki 50 V)", "220 V", "127 V", "12 V"]},
+  {"q": "Galvanik element nima?", "options": ["Kimyoviy energiyani bevosita elektr energiyasiga aylanturuvchi qayta zaryadlanmaydigan bir martalik manba (batareyka)", "Akkumulyator", "Generator", "Kondensator"]},
+  {"q": "Elektr akkumulyatori nima?", "options": ["Kimyoviy jarayonlar asosida elektr energiyasini to‘plovchi (zaryadlanuvchi) qayta ishlatiladigan manba", "Bir martalik batareya", "Kondensator turi", "Stabilizator"]},
+  {"q": "Kislotali akkumulyatorlarga (masalan, avtomobil akkumulyatori) qanday suyuqlik quyiladi?", "options": ["Distillangan suv va sulfat kislota aralashmasi (Elektrolit)", "Toza kislota", "Oddiy jo'mrak suvi", "Mashina moyi"]},
+  {"q": "Akkumulyator sig’imi qaysi birlikda o‘lchanadi?", "options": ["Amper * soat (A*soat) yoki mA*soat", "Vatt * soat", "Farad", "Amper / soat"]},
+  {"q": "Sizga sig’imi 60 A*soat bo’lgan akkumulyator berilgan. Agar undan 3 A tok olinsa, u necha soatga yetadi?", "options": ["20 soat", "60 soat", "180 soat", "5 soat"]},
+  {"q": "Zanjir sirtining nabori (topologiyasi) prinsiplarida tugunlar soni n va tarmoqlar soni m bo‘lsa, Kirxgofning birinchi qonuni bo‘yicha nechta mustaqil tenglama tuziladi?", "options": ["n - 1", "m - n", "m - n + 1", "n"]},
+  {"q": "Kirxgofning ikkinchi qonuni bo‘yicha mustaqil konturlar uchun tenglamalar soni qanday topiladi?", "options": ["m - n + 1", "n - 1", "m", "n"]},
+  {"q": "Elektr maydonining energetik xarakteristikasi qaysi kattalik?", "options": ["Potensial (f) yoki potensiallar ayirmasi (U)", "Kuchlanganlik (E)", "Zaryad (q)", "Elektr oqimi"]},
+  {"q": "Elektr maydonining kuch xarakteristikasi qaysi kattalik?", "options": ["Kuchlanganlik (E)", "Potensial", "Sig’im", "Energiya"]},
+  {"q": "Kuch chiziqlari nima?", "options": ["Har bir nuqtasiga o‘tkazilgan urinma maydon kuchlanganligi vektori bilan mos keladigan xayoliy chiziqlar", "Haqiqiy ko'rinadigan simlar", "Magnit oqimi chiziqlari", "Tok yo‘nalishi"]},
+  {"q": "Ekvipotensial sirt nima?", "options": ["Barcha nuqtalarida elektr maydon potensiali bir xil bo‘lgan sirt", "Zaryadlangan plastinka", "Izolyator sirti", "Tok oqmaydigan sim"]},
+  {"q": "Kulon qonuni qaysi zaryadlar uchun o‘rinli?", "options": ["Tinch turgan nuqtaviy zaryadlar uchun", "Harakatdagi ixtiyoriy zaryadlar uchun", "Faqat manfiy zaryadlar uchun", "Faqat katta metall sharlar uchun"]},
+  {"q": "Ikki nuqtaviy zaryad orasidagi masofa 2 marta kamaytirilsa, ularning o‘zaro ta'sir kuchi qanday o‘zgaradi?", "options": ["4 marta ortadi", "2 marta ortadi", "4 marta kamayadi", "2 marta kamayadi"]},
+  {"q": "Elektr toki tushunchasini fanga qaysi olim kiritgan?", "options": ["Andre Amper", "Jorj Om", "Sharl Kulon", "Maykl Faradey"]},
+  {"q": "O‘tkazgichning elektr qarshiligi qaysi asbob yordamida o‘lchanadi?", "options": ["Ommetr", "Voltmetr", "Ampermetr", "Vattmetr"]},
+  {"q": "Elektr quvvati qaysi asbob yordamida to‘g‘ridan-to‘g‘ri o‘lchanadi?", "options": ["Vattmetr", "Voltmetr", "Ampermetr", "Ommetr"]},
+  {"q": "Zanjirda reaktiv quvvatni o‘lchash uchun qaysi asbob ishlatiladi?", "options": ["Varmetr", "Vattmetr", "Voltmetr", "Fazometr"]},
+  {"q": "Kuchlanish va tok orasidagi faza farqini (cos f) o‘lchaydigan asbob qanday ataladi?", "options": ["Fazometr (yoki kosfinometr)", "Voltmetr", "Ampermetr", "Chastotamerk"]},
+  {"q": "O‘zgaruvchan tok chastotasini o‘lchaydigan asbob qanday ataladi?", "options": ["Chastotamer (Chastotometr)", "Fazometr", "Vattmetr", "Ommetr"]},
+  {"q": "O‘zgaruvchan tok egri chizig‘ining shaklini (osssilyogrammasini) ko‘rish va kuzatish uchun qaysi qurilma ishlatiladi?", "options": ["Ossillograf", "Generator", "Voltmetr", "Multimetr"]},
+  {"q": "Simlar va materiallarning izolyatsiya qarshiligini o‘lchash uchun ishlatiladigan yuqori kuchlanishli maxsus ommetr qanday ataladi?", "options": ["Megommetr", "Mikroommetr", "Multimetr", "Voltmetr"]},
+  {"q": "Supero‘tkazgichda (qarshiligi nol bo‘lganda) hosil qilingan tok manba o‘chirilgandan keyin qancha vaqt oqishi mumkin?", "options": ["Cheksiz uzoq vaqt davomida (isrofsiz)", "Bir necha minut", "Darhol to‘xtaydi", "Bir soat"]},
+  {"q": "Yarimo‘tkazgichli diod simmetrik elementmi yoki nosimmetrik?", "options": ["Nosimmetrik (chunki to‘g‘ri va teskari xarakteristikalari turlicha)", "Simmetrik", "Chiziqli", "Passiv"]},
+  {"q": "Rezistor simmetrik elementmi yoki nosimmetrik?", "options": ["Simmetrik (tok qaysi tomondan oqishidan qat'iy nazar xossasi o‘zgarmaydi)", "Nosimmetrik", "Aktiv manba", "Boshqariladigan"]},
+  {"q": "Zanjir elementlari dynamic rejimi nima?", "options": ["Kattaliklarning vaqt bo‘yicha keskin o‘zgarishi (o'tish jarayonlari) rejimi", "Barqarorlashgan sokin rejim", "Zanjirning o‘chirilgan holati", "Salt ishlash rejimi"]},
+  {"q": "Zanjir elementlari statik rejimi nima?", "options": ["Kattaliklar vaqt o‘tishi bilan o‘zgarmaydigan barqaror rejim", "O'tish jarayoni", "Qisqa tutashuv payti", "Hech qanday toksiz holat"]},
+  {"q": "Zanjirda kommutatsiya (ulash yoki o‘chirish) jarayonida tok va kuchlanishning eski qiymatdan yeni qiymatga o‘tish davri nima deyiladi?", "options": ["O‘tish jarayoni (Perexodnoy protsess)", "Statsionar rejim", "Rezonans", "Kommutatsiya qonuni"]},
+  {"q": "Kommutatsiyaning birinchi qonuni nima haqida?", "options": ["Induktivlikdagi tok kommutatsiya lahzasida sakrash bilan o‘zgara olmaydi i(0-)=i(0+)", "Kondensatordagi tok o‘zgara olmaydi", "Kuchlanish nolgacha tushadi", "Tugundagi toklar yig‘indisi ortadi"]},
+  {"q": "Kommutatsiyaning ikkinchi qonuni nima haqida?", "options": ["Kondensatordagi kuchlanish kommutatsiya lahzasida sakrash bilan o‘zgara olmaydi uc(0-)=uc(0+)", "G‘altakdagi kuchlanish o‘zgarmaydi", "Tok cheksiz ortadi", "Zanjir qarshiligi yo‘qoladi"]},
+  {"q": "O‘tish jarayonlarining davomiyligi (tezligi) qaysi kattalikka bog‘liq?", "options": ["Zanjirning vaqt doimiysiga (tau)", "Manba kuchlanishiga", "Elementlar soniga", "Chastotaga"]},
+  {"q": "RC zanjiri uchun vaqt doimiysi (tau) qanday topiladi?", "options": ["tau = R * C", "tau = L / R", "tau = 1 / (R*C)", "tau = sqrt(R*C)"]},
+  {"q": "RL zanjiri uchun vaqt doimiysi (tau) qanday topiladi?", "options": ["tau = L / R", "tau = R * L", "tau = R / L", "tau = sqrt(L / R)"]},
+  {"q": "Kommutatsiya jarayonidan keyin o‘tish jarayoni amalda necha tau (t) vaqt ichida tugaydi deb hisoblanadi?", "options": ["(3 ... 5) * tau ichida", "1 * tau ichida", "100 * tau ichida", "Darhol tugaydi"]},
+  {"q": "O‘tish jarayonlarini hisoblashning mumtoz (klassik) usuli nimaga asoslangan?", "options": ["Chiziqli differensial tenglamalarni yechishga", "Laplas almashtirishlariga", "Kirxgof qonunlarini oddiy algebraik hisoblashga", "Matritsalar usuliga"]},
+  {"q": "O‘tish jarayonlarini hisoblashning operatorli usuli nimaga asoslangan?", "options": ["Laplas integrali yordamida differensial tenglamalarni algebraik tenglamalarga o‘tkazishga (p-operator)", "Fure qatorlariga", "Klassik differensiallashga", "Grafik chizishga"]},
+  {"q": "Murakkab o‘zgaruvchan sinusoidal bo‘lmagan toklarni hisoblashda qaysi matematik usul qo‘llaniladi?", "options": ["Fure qatorlariga ajratish (Garmonikalar usuli)", "Logarifmlash", "Ekvivalent sxemalar usuli", "Nyuton usuli"]},
+  {"q": "Sinusoidal bo‘lmagan davriy signalning birinchi garmonikasi (asosiy garmonika) nima?", "options": ["Signal davri bilan bir xil davrga ega bo‘lgan sinusoidal tashkil etuvchi", "O‘zgarmas tashkil etuvchi", "Chastotasi 2 marta katta bo‘lgan sinusoidal", "Shovqinlar yig‘indisi"]},
+  {"q": "O‘zgarmas tok zanjirlarini hisoblashda kompleks sonlardan (yoki vektorlardan) foydalaniladimi?", "options": ["Yo‘q, kompleks sonlar faqat sinusoidal o‘zgaruvchan tok zanjirlari uchun qo‘llaniladi", "Ha, har doim foydalaniladi", "Faqat murakkab zanjirlarda", "Faqat akkumulyatorlarda"]},
+  {"q": "O‘zgaruvchan tokni ifodalashda kompleks qarshilik (Z) tarkibidagi haqiqiy qism nimani anglatadi?", "options": ["Aktiv qarshilikni (R)", "Reaktiv qarshilikni (X)", "To‘la qarshilikni", "Sig’imni"]},
+  {"q": "Kompleks qarshilik (Z) tarkibidagi mavhum qism (j harfi oldidagi) nimani anglatadi?", "options": ["Reaktiv qarshilikni (X)", "Aktiv qarshilikni (R)", "Kuchlanishni", "Faza burchagini"]},
+  {"q": "Magnit maydon kuchlanganligi (H) va magnit induksiyasi (B) orasidagi bog‘liqlik qaysi?", "options": ["B = mu * mu0 * H", "B = H / mu", "H = mu * B", "B = H + mu0"]},
+  {"q": "Solenoid (silindrik g‘altak) ichidagi magnit maydon kuchlanganligi formulasi qaysi?", "options": ["H = I * W / l", "H = B / mu", "H = I / (2*pi*r)", "H = F / S"]},
+  {"q": "To‘g‘ri uzun o‘tkazgichdan o‘tayotgan tok atrofida hosil qilgan magnit maydon kuchlanganligi formulasi (Bio-Savar-Laplas qonunidan)?", "options": ["H = I / (2 * pi * r)", "H = I * W / l", "H = B * S", "H = 2 * pi * I"]},
+  {"q": "Magnit maydon kuchlanganligi birligi nima?", "options": ["Amper / metr (A / m)", "Tesla", "Veber", "Henri / metr"]},
+  {"q": "Elektr zanjirida kuchlanishni o‘lchash ko‘lamini 10 marta oshirish uchun qo‘shimcha qarshilik (Rqo'sh) qanday tanlanadi?", "options": ["Rqo'sh = 9 * Rv  (voltmetr qarshiligidan 9 marta katta)", "Rqo'sh = 10 * Rv", "Rqo'sh = Rv / 10", "Rqo'sh = Rv / 9"]},
+  {"q": "Ampermetrning o‘lchash ko‘lamini 5 marta oshirish uchun shunt qarshiligi (Rsh) qanday tanlanadi?", "options": ["Rsh = Ra / 4  (ampermetr qarshiligidan 4 marta kichik)", "Rsh = Ra / 5", "Rsh = 5 * Ra", "4 * Ra"]},
+  {"q": "Zanjir elementining solishtirma o‘tkazuvchanligi haroratga qanday bog‘liq (metallar uchun)?", "options": ["Harorat oshsa, kamayadi", "Harorat oshsa, ortadi", "Haroratga bog‘liq emas", "Kvadratik ortadi"]}
+];
+
+let selectedSection = 1;
+let sectionQuestions = [];
+let currentQIndex = 0;
+let correctCount = 0;
+
+function startSection(sectionNum) {
+  selectedSection = sectionNum;
+  document.getElementById('start-screen').classList.remove('active');
+  document.getElementById('quiz-screen').classList.add('active');
+  
+  let sliced = [];
+  
+  if (sectionNum === 8) {
+    // 8-BLOK: Hamma 197 ta testdan mutloq tasodifiy (aralash) 30 tasini tanlab olish
+    const shuffledRaw = [...rawQuestions].sort(() => Math.random() - 0.5);
+    sliced = shuffledRaw.slice(0, 30);
+  } else {
+    // 1-7 BLOKLAR: Tartibli qismlar
+    const startIdx = (sectionNum - 1) * 30;
+    const endIdx = sectionNum * 30;
+    sliced = rawQuestions.slice(startIdx, endIdx);
+  }
+  
+  // Variantlarni ham o'z ichida aralashtirish
+  sectionQuestions = sliced.map(item => {
+    const correctAns = item.options[0]; // birinchi javob har doim to'g'ri
+    const mixedOptions = [...item.options].sort(() => Math.random() - 0.5);
+    return {
+      qText: item.q,
+      opts: mixedOptions,
+      answer: correctAns
+    };
+  });
+  
+  currentQIndex = 0;
+  correctCount = 0;
+  showQuestion();
+}
+
+function showQuestion() {
+  if (currentQIndex >= sectionQuestions.length) {
+    showResults();
+    return;
+  }
+  
+  const qItem = sectionQuestions[currentQIndex];
+  
+  document.getElementById('counter').innerText = `${currentQIndex + 1}/${sectionQuestions.length}`;
+  const progressPercent = (currentQIndex / sectionQuestions.length) * 100;
+  document.getElementById('progress').style.width = `${progressPercent}%`;
+  
+  let optionsHtml = '';
+  qItem.opts.forEach(opt => {
+    const safeOpt = opt.replace(/'/g, "\\'");
+    optionsHtml += `<button class="opt-btn" onclick="selectOption(this, '${safeOpt}')">${opt}</button>`;
+  });
+  
+  document.getElementById('q-card').innerHTML = `
+    <div class="q-text">${qItem.qText}</div>
+    <div class="options">${optionsHtml}</div>
+  `;
+}
+
+function selectOption(clickedBtn, selectedVal) {
+  const qItem = sectionQuestions[currentQIndex];
+  const allButtons = document.querySelectorAll('.options .opt-btn');
+  
+  allButtons.forEach(btn => btn.disabled = true);
+  
+  if (selectedVal === qItem.answer) {
+    clickedBtn.classList.add('correct');
+    correctCount++;
+  } else {
+    clickedBtn.classList.add('wrong');
+    allButtons.forEach(btn => {
+      if (btn.innerText === qItem.answer) {
+        btn.classList.add('correct');
+      }
+    });
+  }
+  
+  setTimeout(() => {
+    currentQIndex++;
+    showQuestion();
+  }, 1200);
+}
+
+function showResults() {
+  document.getElementById('quiz-screen').classList.remove('active');
+  document.getElementById('result-screen').classList.add('active');
+  
+  document.getElementById('progress').style.width = '100%';
+  document.getElementById('res-score').innerText = correctCount;
+  
+  const total = sectionQuestions.length;
+  const percent = Math.round((correctCount / total) * 100);
+  document.getElementById('res-detail').innerText = `Siz ushbu bo‘limdagi jami ${total} tadan ${correctCount} ta savolga to‘g‘ri javob berdingiz (${percent}%)`;
+  
+  let title = "Yaxshi!";
+  if (percent < 40) title = "Kuchsiz natija!";
+  else if (percent < 70) title = "Yaxshi natija!";
+  else if (percent < 90) title = "Juda yaxshi!";
+  else title = "Mukammal natija! 🌟";
+  
+  document.getElementById('res-title').innerText = title;
+}
+
+function goHome() {
+  document.getElementById('quiz-screen').classList.remove('active');
+  document.getElementById('result-screen').classList.add('active');
+  document.getElementById('result-screen').classList.remove('active');
+  document.getElementById('start-screen').classList.add('active');
+}
+</script>
+
+</body>
+</html>
